@@ -1,0 +1,185 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "dnsmasq@latest": {
+      "last_modified": "2024-11-16T04:25:12Z",
+      "resolved": "github:NixOS/nixpkgs/34a626458d686f1b58139620a8b2793e9e123bba#dnsmasq",
+      "source": "devbox-search",
+      "version": "2.90",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/2ijnd860ffv30ll1y5gs6n80byk6xpvn-dnsmasq-2.90",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/2ijnd860ffv30ll1y5gs6n80byk6xpvn-dnsmasq-2.90"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/n4iacwcfhjaynvilxby2q9xf72hhc18w-dnsmasq-2.90",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/n4iacwcfhjaynvilxby2q9xf72hhc18w-dnsmasq-2.90"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/vysn6lj5w5s4wp8ghs2v39vcmlm07aza-dnsmasq-2.90",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/vysn6lj5w5s4wp8ghs2v39vcmlm07aza-dnsmasq-2.90"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/7mvxj1n1s3bsklri62w18kvhiicxl0sr-dnsmasq-2.90",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/7mvxj1n1s3bsklri62w18kvhiicxl0sr-dnsmasq-2.90"
+        }
+      }
+    },
+    "mkcert@latest": {
+      "last_modified": "2024-11-16T04:25:12Z",
+      "resolved": "github:NixOS/nixpkgs/34a626458d686f1b58139620a8b2793e9e123bba#mkcert",
+      "source": "devbox-search",
+      "version": "1.4.4",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/4y929hv7lpdwr0q0wz2g2jmk1grampp6-mkcert-1.4.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/4y929hv7lpdwr0q0wz2g2jmk1grampp6-mkcert-1.4.4"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/z59gcc2na19lhxk9kf0byhhdgcksw7p9-mkcert-1.4.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/z59gcc2na19lhxk9kf0byhhdgcksw7p9-mkcert-1.4.4"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/igb9ahbkrvp3sp79vf2fla95d7bv4apf-mkcert-1.4.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/igb9ahbkrvp3sp79vf2fla95d7bv4apf-mkcert-1.4.4"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/28aj6zbhr6rph9p0s6f8pssbscr650si-mkcert-1.4.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/28aj6zbhr6rph9p0s6f8pssbscr650si-mkcert-1.4.4"
+        }
+      }
+    },
+    "nssTools@latest": {
+      "last_modified": "2024-11-16T04:25:12Z",
+      "resolved": "github:NixOS/nixpkgs/34a626458d686f1b58139620a8b2793e9e123bba#nssTools",
+      "source": "devbox-search",
+      "version": "3.101.2",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "tools",
+              "path": "/nix/store/8qzf99z8rcyriphg06p2fp63w7lg2wda-nss-3.101.2-tools",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/fmgm0rs139sxja1ld4ncsgaa6z9mxnk0-nss-3.101.2",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/n49x0alqwx1iga30wd2xpv740mh39xma-nss-3.101.2-dev"
+            }
+          ],
+          "store_path": "/nix/store/8qzf99z8rcyriphg06p2fp63w7lg2wda-nss-3.101.2-tools"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "tools",
+              "path": "/nix/store/gyvj38b3f49a4li2xh7bavb0syhr74sv-nss-3.101.2-tools",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/rmjpfyrr46i6k7v86svyl2kasxa1p5l0-nss-3.101.2",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/zjn3dmw16s7bn3k68n13ajcdzlwifnw4-nss-3.101.2-dev"
+            }
+          ],
+          "store_path": "/nix/store/gyvj38b3f49a4li2xh7bavb0syhr74sv-nss-3.101.2-tools"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "tools",
+              "path": "/nix/store/2i3ci6327rwq87mwlkhhmrpam83vz607-nss-3.101.2-tools",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/rpv76kfvka4dx2xk7m1g03b848ai8ar0-nss-3.101.2",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/rm5xyikmngbaay60niqvksvms1gf4lfl-nss-3.101.2-dev"
+            }
+          ],
+          "store_path": "/nix/store/2i3ci6327rwq87mwlkhhmrpam83vz607-nss-3.101.2-tools"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "tools",
+              "path": "/nix/store/jlgnb2alipjfiidbvrs6la41b8lmjc6r-nss-3.101.2-tools",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/3ma7c4syxds2wrp03ax3b7p9fdsh1lwg-nss-3.101.2",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/m1cg8yqwajdqz1kn92hv4krq9yj51206-nss-3.101.2-dev"
+            }
+          ],
+          "store_path": "/nix/store/jlgnb2alipjfiidbvrs6la41b8lmjc6r-nss-3.101.2-tools"
+        }
+      }
+    }
+  }
+}

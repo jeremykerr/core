@@ -1,0 +1,36 @@
+
+networks:
+  core:
+    name: core
+    driver: bridge
+
+services:
+  proxy:
+    build:
+      context: ../platform/proxy
+      dockerfile: ../../docker/Dockerfile.proxy
+      x-bake:
+        file: ./docker/docker-bake.hcl
+        target: proxy
+    command: ["nginx", "-c", "/etc/nginx/nginx.local.conf", "-g", "daemon off;"]
+    networks:
+      - core
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+    develop:
+      watch:
+        - path: ../platform/proxy/nginx/conf.d
+          action: sync+restart
+          target: /etc/nginx/conf.d
+        - path: ../platform/proxy/nginx/certs
+          action: sync+restart
+          target: /etc/nginx/certs
+        - path: ../platform/proxy/nginx/nginx.conf
+          action: sync+restart
+          target: /etc/nginx/nginx.conf
+        - path: ../platform/proxy/nginx/nginx.local.conf
+          action: sync+restart
+          target: /etc/nginx/nginx.local.conf
+    restart: unless-stopped
+

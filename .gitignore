@@ -1,0 +1,7 @@
+
+# Ignore local configuration files
+.env
+
+# Ignore local SSL certificates
+platform/proxy/nginx/certs/
+

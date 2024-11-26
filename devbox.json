@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.5/.schema/devbox.schema.json",
+  "packages": [
+    "mkcert@latest",
+    "nssTools@latest",
+    "dnsmasq@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "pkill dnsmasq || true",
+      "dnsmasq -C platform/proxy/dnsmasq.local.conf --port=5053 || true",
+      "echo 'CORE: Code, Operations, Resources, & Environments' 2> /dev/null"
+    ],
+    "scripts": {
+      "dnsmasq": [
+        "pkill dnsmasq || true",
+        "dnsmasq -C platform/proxy/dnsmasq.local.conf --port=5053"
+      ],
+      "setup": [
+        "mkdir -p platform/proxy/nginx/certs",
+        "mkcert -install",
+        "mkcert -cert-file platform/proxy/nginx/certs/home.arpa.crt -key-file platform/proxy/nginx/certs/home.arpa.key 'home.arpa' '*.home.arpa'",
+        "sudo mkdir -p /etc/resolver && sudo cp ./platform/proxy/home.arpa /etc/resolver/",
+        "defaults write ~/Library/Preferences/com.google.Chrome.plist DnsOverHttpsMode -string \"secure\"",
+        "defaults write ~/Library/Preferences/com.google.Chrome.plist DnsOverHttpsTemplates -string \"https://dns.google/dns-query\"",
+        "defaults write ~/Library/Preferences/com.google.Chrome.plist DnsOverHttpsExcludeDomains -array \"home.arpa\" \"*.home.arpa\""
+      ]
+    }
+  }
+}
