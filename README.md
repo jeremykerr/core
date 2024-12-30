@@ -30,6 +30,8 @@ devbox shell
 make run
 ```
 
+The Makefile is your friend. To learn more advanced commands, run `make` or `make help`.
+
 ## Interacting with your apps
 
 These are the links you can use to interact with apps while running locally:

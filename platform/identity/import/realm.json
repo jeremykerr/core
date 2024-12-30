@@ -1,0 +1,58 @@
+{
+  "realm": "development",
+  "enabled": true,
+  "users": [
+    {
+      "username": "test",
+      "enabled": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "testuser@example.com",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test",
+          "temporary": false,
+          "secretData": "{\"value\":\"test\",\"salt\":\"somesaltvalue\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "realmRoles": [ "user" ]
+    }
+  ],
+  "clients": [
+    {
+        "clientId": "hello",
+        "enabled": true,
+        "protocol": "openid-connect",
+        "publicClient": false,
+        "redirectUris": [
+          "https://hello.home.arpa/",
+          "https://middleware.home.arpa/oauth2/callback"
+        ],
+        "webOrigins": [
+            "https://auth.home.arpa",
+            "https://hello.home.arpa",
+            "https://identity.home.arpa"
+        ],
+        "directAccessGrantsEnabled": true,
+        "standardFlowEnabled": true,
+        "implicitFlowEnabled": false,
+        "fullScopeAllowed": true,
+        "secret": "replace-in-prod"
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Admin privileges"
+      },
+      {
+        "name": "user",
+        "description": "User privileges"
+      }
+    ]
+  }
+}
