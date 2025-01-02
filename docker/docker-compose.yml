@@ -112,7 +112,17 @@ services:
         condition: service_healthy
       proxy:
         condition: service_healthy
-    command: ["/bin/oauth2-proxy", "--skip-provider-button"]
+    command:
+      - "/bin/oauth2-proxy"
+      - "--skip-provider-button"
+      - "--set-xauthrequest=true"
+      - "--set-authorization-header=true"
+      - "--pass-user-headers=true"
+      - "--oidc-groups-claim=groups"
+      - "--pass-access-token=true"
+      - "--standard-logging=true"
+      - "--auth-logging=true"
+      - "--request-logging=true"
     environment:
       - OAUTH2_PROXY_LOGGING_LEVEL=debug
       - OAUTH2_PROXY_PROVIDER=oidc
