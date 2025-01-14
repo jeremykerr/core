@@ -1,10 +1,176 @@
-
 networks:
   core:
     name: core
     driver: bridge
+    # Gateway needs to be known in advance to override hostnames where needed
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+
+x-default-hosts: &default_hosts
+  - "auth.home.arpa:172.20.0.4"
+  - "hello.home.arpa:172.20.0.4"
+  - "home.arpa:172.20.0.4"
+  - "identity.home.arpa:172.20.0.4"
+  - "middleware.home.arpa:172.20.0.4"
+volumes:
+  local_data:
+    name: local_data
+    driver: local
+  shared:
+    name: shared
+    driver: local
 
 services:
+  data:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - local_data:/var/lib/postgresql/data
+      - ../platform/data/initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      core:
+        ipv4_address: 172.20.0.10
+    expose:
+      - "5432"
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+    restart: unless-stopped
+
+  api:
+    image: hashicorp/http-echo:latest
+    command: ["-listen=:3000"]
+    depends_on:
+      data:
+        condition: service_healthy
+    networks:
+      core:
+        ipv4_address: 172.20.0.11
+    expose:
+      - "3000"
+    # TODO: Add healthcheck after replacing this with a real API
+    # healthcheck:
+    #   test: ["CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/localhost/3000'"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 60
+    restart: unless-stopped
+
+  identity:
+    image: quay.io/keycloak/keycloak:latest
+    command: ["start-dev", "--import-realm"]
+    depends_on:
+      data:
+        condition: service_healthy
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_HEALTH_ENABLED=true
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://data:5432/identity
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+      - KC_HOSTNAME=https://auth.home.arpa
+      - KC_HOSTNAME_ADMIN=https://identity.home.arpa
+      - KC_HOSTNAME_STRICT=true
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_PROXY=edge
+      - KC_PROXY_HEADERS=forwarded
+      # NOTE: This trusts the default docker bridge subnet
+      # If you modify the Docker subnet, you must update this
+      - KC_PROXY_TRUSTED_ADDRESSES=192.168.65.0/24
+      - KC_IMPORT=/opt/keycloak/data/import/realm.json
+    volumes:
+      - shared:/mnt/shared
+      - ../platform/identity/import:/opt/keycloak/data/import
+    networks:
+      core:
+        ipv4_address: 172.20.0.12
+    extra_hosts: *default_hosts
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/localhost/8080'"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+    restart: unless-stopped
+
+  middleware:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    depends_on:
+      identity:
+        condition: service_healthy
+      proxy:
+        condition: service_healthy
+    command:
+      - "/bin/oauth2-proxy"
+      - "--skip-provider-button"
+    environment:
+      # OIDC settings
+      - OAUTH2_PROXY_PROVIDER=oidc
+      - OAUTH2_PROXY_CLIENT_ID=hello
+      - OAUTH2_PROXY_CLIENT_SECRET=replace-in-prod
+      - OAUTH2_PROXY_OIDC_ISSUER_URL=https://auth.home.arpa/realms/development
+      - OAUTH2_PROXY_REDIRECT_URL=https://middleware.home.arpa/oauth2/callback
+      - OAUTH2_PROXY_HTTP_ADDRESS=:4180
+      - OAUTH2_PROXY_EMAIL_DOMAINS=*
+
+      # Basic cookie settings
+      - OAUTH2_PROXY_COOKIE_SECRET=abcd1234abcd1234
+      - OAUTH2_PROXY_COOKIE_SECURE=true
+      - OAUTH2_PROXY_COOKIE_DOMAINS=.home.arpa
+      - OAUTH2_PROXY_COOKIE_NAME=_home_arpa_session
+
+      # Simple upstream config
+      - OAUTH2_PROXY_UPSTREAMS=static://200
+
+      # SSL settings
+      - OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY=true
+
+      # Proxy settings
+      - OAUTH2_PROXY_REVERSE_PROXY=true
+      - OAUTH2_PROXY_PASS_HOST_HEADER=true
+
+      # Debug logging
+      - OAUTH2_PROXY_LOGGING_LEVEL=debug
+      - OAUTH2_PROXY_LOGGING_TIMESTAMP=true
+
+      # Add detailed request logging
+      - OAUTH2_PROXY_REQUEST_LOGGING=true
+      - OAUTH2_PROXY_AUTH_LOGGING=true
+      - OAUTH2_PROXY_STANDARD_LOGGING=true
+
+      # Add these to ensure we pass through all claims
+      - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
+      - OAUTH2_PROXY_SET_XAUTHREQUEST=true
+      - OAUTH2_PROXY_PASS_USER_HEADERS=true
+      - OAUTH2_PROXY_SET_AUTHORIZATION_HEADER=true
+      - OAUTH2_PROXY_SKIP_CLAIMS_FROM_PROFILE_VALIDATION=true
+
+    networks:
+      core:
+        ipv4_address: 172.20.0.13
+    extra_hosts: *default_hosts
+    expose:
+      - "4180"
+    # TODO: Implement healthcheck for oauth2-proxy
+    # healthcheck:
+    #   test: ["CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/localhost/4180'"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 60
+    restart: unless-stopped
+
   proxy:
     build:
       context: ../platform/proxy
@@ -13,8 +179,18 @@ services:
         file: ./docker/docker-bake.hcl
         target: proxy
     command: ["nginx", "-c", "/etc/nginx/nginx.local.conf", "-g", "daemon off;"]
+    depends_on:
+      identity:
+        condition: service_healthy
+    volumes:
+      - shared:/mnt/shared
     networks:
-      - core
+      core:
+        ipv4_address: 172.20.0.4
+    extra_hosts: *default_hosts
+    expose:
+      - "80"
+      - "443"
     ports:
       - "127.0.0.1:80:80"
       - "127.0.0.1:443:443"
@@ -26,11 +202,16 @@ services:
         - path: ../platform/proxy/nginx/certs
           action: sync+restart
           target: /etc/nginx/certs
-        - path: ../platform/proxy/nginx/nginx.conf
+        - path: ../platform/proxy/nginx/local-sites.d
           action: sync+restart
-          target: /etc/nginx/nginx.conf
+          target: /etc/nginx/local-sites.d
         - path: ../platform/proxy/nginx/nginx.local.conf
           action: sync+restart
           target: /etc/nginx/nginx.local.conf
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
     restart: unless-stopped
 

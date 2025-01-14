@@ -32,6 +32,33 @@ run: ## Run Docker Compose services and tail logs, syncing changes to live conta
 	docker compose -f $(COMPOSE_FILE) build --builder $(BUILDER_NAME)
 	docker compose -f $(COMPOSE_FILE) up --watch
 
+clean: guard-COMPOSE_FILE
+clean: ## Remove all Docker Compose resources including volumes and networks
+	docker compose -f $(COMPOSE_FILE) down -v --remove-orphans
+	docker network rm core || true
+
+##
+## Database management & setup:
+##
+
+# These should be written to be idempotent and not fail if already run
+# These run automatically on first project start - this command allows
+# developers to manually run additional migrations when needed
+migrate: guard-COMPOSE_FILE
+migrate: ## Run database migrations
+	@if ! docker compose -f $(COMPOSE_FILE) ps data | grep -q "running"; then \
+		echo "Starting database container..."; \
+		docker compose -f $(COMPOSE_FILE) up -d data; \
+		echo "Waiting for database to be ready..."; \
+		sleep 5; \
+	fi
+	docker compose -f $(COMPOSE_FILE) exec data sh -c '\
+		for f in /docker-entrypoint-initdb.d/*; do \
+			if [ "$${f}" != "/docker-entrypoint-initdb.d/01-create-databases.sql" ]; then \
+				psql -U postgres -d postgres -f "$${f}"; \
+			fi \
+		done'
+
 ##
 ## Development with Docker Compose:
 ##

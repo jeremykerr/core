@@ -1,0 +1,122 @@
+{
+  "realm": "development",
+  "enabled": true,
+  "users": [
+    {
+      "username": "test",
+      "enabled": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "testuser@example.com",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test",
+          "temporary": false,
+          "secretData": "{\"value\":\"test\",\"salt\":\"somesaltvalue\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "realmRoles": [ "user" ],
+      "groups": ["/users"]
+    },
+    {
+      "username": "admin",
+      "enabled": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "email": "adminuser@example.com",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false,
+          "secretData": "{\"value\":\"admin\",\"salt\":\"somesaltvalue\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "realmRoles": [ "user", "admin" ],
+      "groups": ["/administrators", "/users"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "hello",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "redirectUris": [
+        "https://hello.home.arpa/",
+        "https://middleware.home.arpa/oauth2/callback"
+      ],
+      "webOrigins": [
+        "https://auth.home.arpa",
+        "https://hello.home.arpa",
+        "https://identity.home.arpa"
+      ],
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "fullScopeAllowed": true,
+      "secret": "replace-in-prod",
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "groups",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Admin privileges"
+      },
+      {
+        "name": "user",
+        "description": "User privileges"
+      }
+    ]
+  },
+  "groups": [
+    {
+      "name": "administrators",
+      "path": "/administrators",
+      "attributes": {},
+      "realmRoles": ["admin"],
+      "subGroups": []
+    },
+    {
+      "name": "users",
+      "path": "/users",
+      "attributes": {},
+      "realmRoles": ["user"],
+      "subGroups": []
+    }
+  ]
+}
