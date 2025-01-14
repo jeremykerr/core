@@ -35,7 +35,18 @@ The Makefile is your friend. To learn more advanced commands, run `make` or `mak
 ## Interacting with your apps
 
 These are the links you can use to interact with apps while running locally:
-- [home.arpa](https://home.arpa)
+- [home.arpa](https://home.arpa) is the default landing page
+- [auth.home.arpa](https://auth.home.arpa) is where you can configure Keycloak
+- [middleware.home.arpa](https://middleware.home.arpa) is where you can login
+    - You can login with `test`/`test` or `admin`/`admin`
+    - These users are specified in the [realm.json](./platform/identity/import/realm.json) file
+    - The `test` user is a regular user with the `user` role
+    - The `admin` user is an admin user with the `user` and `admin` roles
+    - You can sign out at [middleware.home.arpa/oauth2/sign_out](https://middleware.home.arpa/oauth2/sign_out)
+- [hello.home.arpa](https://hello.home.arpa) is the demo app, which requires authentication
+    - [hello.home.arpa/](https://hello.home.arpa/) is accessible to all users, authenticated or not
+    - [hello.home.arpa/authorized](https://hello.home.arpa/authorized) is limited to authenticated users
+    - [hello.home.arpa/admin](https://hello.home.arpa/admin) is limited to admins
 
 ## Appendix
 
