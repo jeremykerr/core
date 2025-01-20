@@ -2,18 +2,14 @@ networks:
   core:
     name: core
     driver: bridge
-    # Gateway needs to be known in advance to override hostnames where needed
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1
 
 x-default-hosts: &default_hosts
-  - "auth.home.arpa:172.20.0.4"
-  - "hello.home.arpa:172.20.0.4"
-  - "home.arpa:172.20.0.4"
-  - "identity.home.arpa:172.20.0.4"
-  - "middleware.home.arpa:172.20.0.4"
+  - "auth.home.arpa:host-gateway"
+  - "hello.home.arpa:host-gateway"
+  - "home.arpa:host-gateway"
+  - "identity.home.arpa:host-gateway"
+  - "middleware.home.arpa:host-gateway"
+
 volumes:
   local_data:
     name: local_data
@@ -34,7 +30,7 @@ services:
       - ../platform/data/initdb.d:/docker-entrypoint-initdb.d
     networks:
       core:
-        ipv4_address: 172.20.0.10
+    extra_hosts: *default_hosts
     expose:
       - "5432"
     # ports:
@@ -54,7 +50,7 @@ services:
         condition: service_healthy
     networks:
       core:
-        ipv4_address: 172.20.0.11
+    extra_hosts: *default_hosts
     expose:
       - "3000"
     # TODO: Add healthcheck after replacing this with a real API
@@ -85,16 +81,15 @@ services:
       - KC_HOSTNAME_STRICT_HTTPS=false
       - KC_PROXY=edge
       - KC_PROXY_HEADERS=forwarded
-      # NOTE: This trusts the default docker bridge subnet
-      # If you modify the Docker subnet, you must update this
-      - KC_PROXY_TRUSTED_ADDRESSES=192.168.65.0/24
+      # NOTE: Trust private CIDR ranges here, in a real configuration only
+      # trust CIDR ranges corresponding to the network your proxy lives in
+      - KC_PROXY_TRUSTED_ADDRESSES=192.168.0.0/16,172.16.0.0/12,10.0.0.0/8
       - KC_IMPORT=/opt/keycloak/data/import/realm.json
     volumes:
       - shared:/mnt/shared
       - ../platform/identity/import:/opt/keycloak/data/import
     networks:
       core:
-        ipv4_address: 172.20.0.12
     extra_hosts: *default_hosts
     expose:
       - "8080"
@@ -159,7 +154,6 @@ services:
 
     networks:
       core:
-        ipv4_address: 172.20.0.13
     extra_hosts: *default_hosts
     expose:
       - "4180"
@@ -186,7 +180,6 @@ services:
       - shared:/mnt/shared
     networks:
       core:
-        ipv4_address: 172.20.0.4
     extra_hosts: *default_hosts
     expose:
       - "80"
